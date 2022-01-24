@@ -59,13 +59,12 @@ app.get("/**", (req, res) => {
 });
 
 const logger = require("./services/logger.service");
-const sequelize = require("./models");
 const db = require("./models");
 
 async function assertDatabaseConnectionOk() {
   console.log(`Checking database connection...`);
   try {
-    await sequelize.authenticate();
+    await db.sequelize.authenticate();
     console.log("Database connection OK!");
   } catch (error) {
     console.log("Unable to connect to the database:");

@@ -31,7 +31,6 @@ fs.readdirSync(__dirname)
       sequelize,
       Sequelize.DataTypes
     );
-    console.log(model);
     db[model.name] = model;
   });
 
@@ -44,5 +43,5 @@ Object.keys(db).forEach((modelName) => {
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
-db.sequelize.sync({ force: true });
+// db.sequelize.sync({ force: true });
 module.exports = db;

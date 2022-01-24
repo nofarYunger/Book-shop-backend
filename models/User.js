@@ -3,10 +3,9 @@ const bcrypt = require("bcrypt");
 
 module.exports = (sequelize) => {
   const User = sequelize.define("User", {
-    fullName: {
+    fullname: {
       allowNull: false,
       type: DataTypes.STRING,
-      unique: true,
       validate: {
         notEmpty: true,
       },
@@ -28,10 +27,9 @@ module.exports = (sequelize) => {
     },
   });
 
-  User.associate = function ({ AuthToken,Order }) {
+  User.associate = function ({ AuthToken, Order }) {
     User.hasMany(AuthToken);
     User.hasMany(Order);
-
   };
 
   User.authenticate = async function (email, password) {
@@ -47,12 +45,12 @@ module.exports = (sequelize) => {
   };
 
   User.prototype.authorize = async function () {
-    const { authToken } = sequelize.models;
+    const { AuthToken } = sequelize.models;
     const user = this;
     // create a new auth token associated to 'this' user
     // by calling the AuthToken class method we created earlier
     // and passing it the user id
-    const token = await authToken.generate(this.id);
+    const token = await AuthToken.generate(this.id);
     // addAuthToken is a generated method provided by
     // sequelize which is made for any 'hasMany' relationships
     await user.addAuthToken(token);
@@ -62,7 +60,7 @@ module.exports = (sequelize) => {
 
   User.prototype.logout = async function (token) {
     // destroy the auth token that matches the passed token
-    sequelize.models.authToken.destroy({ where: { token } });
+    sequelize.models.AuthToken.destroy({ where: { token } });
   };
-  return User
+  return User;
 };

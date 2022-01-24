@@ -8,18 +8,18 @@ const {
   remove,
   saveOrder,
   checkout,
-  dummyData
+  getBooksByOrderId,
 } = require("./orders.controller");
 
 router.get('/',  getAll)
 router.get('/:id', getOrderById)
 router.get('/user/:id', getUserOrders)
+router.get("/books/:OrderId", getBooksByOrderId);
 
 router.post('/:id',updOrderItems)
 router.post('/save/:id',saveOrder)
-router.get('/damy/',dummyData)
-
 router.post('/checkOut',checkout)
+
 router.delete('/:id',remove)
 
 // need to figure out what to do when a guest make a cart. do i update the server? 

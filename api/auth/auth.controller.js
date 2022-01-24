@@ -1,36 +1,50 @@
+const { User, Order } = require("../../models/");
 const bcrypt = require("bcrypt");
-const { models } = require("../../models");
 
 async function register(req, res) {
   const hash = bcrypt.hashSync(req.body.password, 10);
   try {
     // we added validation to the user model (unique and not null )
     //create a new user with a hashed password
-    const user = await models.User.create(
+    const newUser = await User.create(
       Object.assign(req.body, { hashedPassword: hash })
     );
     //add a token to the connection
-    const data = await user.authorize();
     // sends the obj the the client with the hashed password and the token.
+    const { user, token } = await newUser.authorize();
+    //creating a new order
+    const order = await user.createOrder();
 
-    return res.json(data);
+    return res.json({ token, user, order });
   } catch (err) {
     res.status(400).send(err);
+    console.log(err);
   }
 }
 
 async function login(req, res) {
   const { email, password } = req.body;
-
   // if the email or password are missing, we use status code 400
   // indicating a bad request was made and send back a message
   if (!email || !password) {
     return res.status(400).send("Request missing email or password param");
   }
   try {
-    const user = await models.User.authenticate(email, password);
-    return res.json(user);
+    const { user, token } = await User.authenticate(email, password);
+    //We are looking for the newest order for the specific user (the user has multiple orders and we wont the active one)
+    // we order the orders descending and take only the first one(we can olso do it with the id because its incremented)
+    let order = await Order.findAll({
+      limit: 1,
+      where: {
+        UserId: user.id,
+      },
+      order: [["createdAt", "DESC"]],
+    });
+    order = order[0];
+
+    return res.json({ user, order, token });
   } catch (err) {
+    console.log(err);
     return res.status(400).send("invalid email or password");
   }
 }

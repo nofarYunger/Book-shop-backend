@@ -1,17 +1,16 @@
-const { models } = require("../../models");
-const sequelize = require("../../models");
+const { Order, CartItem, Book } = require("../../models");
 
 //todo: add filter on the order query
 
 async function getAll(req, res) {
-  const orders = await models.Order.findAll({ include: ["CartItem"] });
+  const orders = await Order.findAll({ include: ["CartItem"] });
   res.status(200).json(orders);
 }
 async function getUserOrders(req, res) {
   try {
     const userId = req.params.userId;
     fooInstance.getBars();
-    const orders = await models.Order.findAll({
+    const orders = await Order.findAll({
       where: {
         userId: userId,
       },
@@ -23,7 +22,7 @@ async function getUserOrders(req, res) {
 }
 async function getOrderById(req, res) {
   const id = req.params.id;
-  const order = await models.Order.findByPk(id, { include: ["CartItem"] });
+  const order = await Order.findByPk(id, { include: ["CartItem"] });
   if (order) {
     res.status(200).json(order);
   } else {
@@ -35,7 +34,7 @@ async function saveOrder(req, res) {
   const id = req.params.id;
   if (id) {
     if (+req.body.id === +id) {
-      await models.Order.update(req.body, {
+      await Order.update(req.body, {
         where: {
           id: id,
           userId: req.body.userId,
@@ -52,7 +51,7 @@ async function saveOrder(req, res) {
     }
   } else {
     try {
-      await models.Order.create();
+      await Order.create();
       console.log("created a new order");
       res.status(201).end();
     } catch (error) {
@@ -63,12 +62,12 @@ async function saveOrder(req, res) {
 
 async function remove(req, res) {
   const id = req.params.id;
-  await models.Order.destroy({
+  await Order.destroy({
     where: {
-      id: id,
+      id,
     },
   });
-  await models.CartItem.deleteOrder(id);
+  await CartItem.deleteOrder(id);
 
   res.status(200).end();
 }
@@ -76,31 +75,40 @@ async function remove(req, res) {
 // 3 options to upd:
 // add a new cartItem , change the quantity, of delete the item from the order
 async function updOrderItems(req, res) {
-  const { orderId, itemId, bookId, diff } = req.body;
+  const { orderId, bookId, diff } = req.body;
+  console.log({ diff });
   //maybe i should get the orderId from the logedin user object in the request.
+  console.log("the book is in the backend now");
   try {
-    if (!itemId) {
-      models.CartItem.create({
-        orderId,
+    const cartItem = await CartItem.findOne({
+      where: {
         bookId,
+        orderId,
+      },
+    });
+    console.log({ cartItem });
+    //if we're adding a new item to the cart
+    if (!cartItem) {
+      const newItem = await CartItem.create({
+        OrderId: orderId,
+        BookId: bookId,
       });
+      console.log("new item:", newItem);
     } else {
-      await models.CartItem.increment(
-        { quantity: diff }, //  +1 \ -1
-        { where: { id: itemId } }
-      ); // Will change the quantity by one
+      const newQuantity = cartItem.quantity + diff;
 
-      const { quantity } = models.CartItem.getByPk({ id: itemId });
-      if (quantity < 1) {
-        await models.CartItem.destroy({
-          where: {
-            id: itemId,
-          },
-        });
+      if (newQuantity < 1) {
+        await cartItem.destroy();
+      } else {
+        await CartItem.update(
+          { quantity: newQuantity },
+          { where: { id: cartItem.id } }
+        );
       }
     }
+
     res.status(200).end();
-  } catch (error) {
+  } catch (err) {
     res.status(500).send(err);
     console.log(err);
   }
@@ -109,17 +117,23 @@ async function updOrderItems(req, res) {
 //TODO need to build a checkout function and logic...
 async function checkout(req, res) {
   console.log("check out");
+
+  const { user } = req.body;
+  const newOrder = await user.addOrder(await Order.create());
 }
-async function dummyData(req, res) {
+
+async function getBooksByOrderId(req, res) {
+  const OrderId = req.params.OrderId;
   try {
-    console.log('dddddddddddddddddddddddddd');
-    const order = models.Order.create({ userId: 1 });
-    models.CartItem
-    order.creatCartItems({ bookId: 1 }, { bookId: 2 });
-    console.log({order});
-  } catch (error) {
-    res.status(500).send(error)
-    console.log(error);
+    const books = await CartItem.findAll({
+      where: { OrderId: req.params.OrderId },
+      include: Book,
+    });
+    console.log(books);
+    res.json(books);
+  } catch (err) {
+    res.send(err);
+    console.log(err);
   }
 }
 
@@ -131,5 +145,5 @@ module.exports = {
   remove,
   saveOrder,
   checkout,
-  dummyData,
+  getBooksByOrderId,
 };

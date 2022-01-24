@@ -48,7 +48,6 @@ module.exports = (sequelize, DataTypes) => {
 
   Book.associate = function ({ CartItem }) {
     Book.hasMany(CartItem);
-    console.log("cacacacacacacacacacaacacaca");
   };
   return Book;
 };
