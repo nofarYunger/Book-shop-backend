@@ -1,12 +1,12 @@
 # Book shop: Backend
-A Node.js and Express.js sever for my online book shop with authantication.
+A Node.js and Express.js server for my online book shop with authentication.
 
 ## Technologies
 ##### Built with
 * [Node.js](https://nodejs.org/en/) Node.js is an open-source and cross-platform JavaScript runtime environment.
-* [Express.js](https://expressjs.com/) is a minimal and flexible Node.js framework that provides easy and clean server with less code 
-* [Sequelize ORM](https://sequelize.org/) is a promise-based Node.js ORM for MySql that help me write a good db in a language I know well. 
-* [MySQL](https://www.mysql.com/) is a relational database management system.I chose it because for managing users, orders, authantication and many products with a lot of relationals between them choosing a relational db was the best decision.
+* [Express.js](https://expressjs.com/) is a minimal and flexible Node.js framework that provides an easy and clean server with less code 
+* [Sequelize ORM](https://sequelize.org/) is a promise-based Node.js ORM for MySql that helps me write a good DB in a language I know well. 
+* [MySQL](https://www.mysql.com/) is a relational database management system.I chose it because for managing users, orders, authentication, and many products with a lot of relations between them choosing a relational DB was the best decision.
 * [bcrypt](https://www.npmjs.com/package/bcrypt) A library to help me hash passwords and keep user information crypt
 
 
@@ -15,11 +15,11 @@ In process
 
 
 ## Room for Improvement
-There's alot more that need to be done..
+There's a lot more that needs to be done...
 #### TODO
-* Create a Category module and making a many to many relation between categories and books
-* adding server side filtering
-* adding autantication middelware and isAdmin middleware for more security
+* Create a Category module and make a many to many relation between categories and books
+* adding server-side filtering
+* adding authentication middleware and isAdmin middleware for more security
 * handling errors at the server 
 
 
